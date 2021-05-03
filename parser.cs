@@ -133,7 +133,7 @@ public class Parser
         for(int i = 0; i < x.Count - 1; i++)
             for(int j = 0; j < y.Count - 1; j++)
                 for(int k = 0; k < z.Count - 1; k++)
-                    cube[i, j, k] = cellData[i + j + k];
+                    cube[i, j, k] = cellData[(i * (x.Count - 1) * (y.Count - 1)) + (j * (x.Count - 1)) + k];
 
         return cube;
     }
