@@ -210,11 +210,26 @@ public class Parser
         return graphColoringDictionary;
     }
 
+    // This returns cube() but instead of numbered grainbounds, each value is the hex color it should be
+    public string[,,] coloredCube()
+    {
+        int[,,] cube = this.cube();        
+        Dictionary<int, string> graphColoringDictionary = this.graphColoringDictionary();
+        string[,,] coloredCube = new string[cube.GetLength(0), cube.GetLength(1), cube.GetLength(2)];
+
+        for(int i = 0; i < cube.GetLength(0); i++)
+            for(int j = 0; j < cube.GetLength(1); j++)
+                for(int k = 0; k < cube.GetLength(2); k++)
+                    coloredCube[i, j, k] = graphColoringDictionary[cube[i, j, k]];
+
+        return coloredCube;
+    }
+
     // Starting point
     public static void Main(string[] args)
     {
         // Create parser object
         Parser parser = new Parser("data.vtk");      
-        var colors = parser.graphColoringDictionary();
+        var coloredCube = parser.coloredCube();
     }
 }
