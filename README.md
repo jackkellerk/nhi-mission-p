@@ -4,4 +4,4 @@ Contributors:
 * Add your name here
 
 ## Introduction
-To start run the main.py file
+To start run the Python/main.py file
