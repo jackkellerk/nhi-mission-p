@@ -85,6 +85,8 @@ class Parser:
         self.df = pd.concat([self.x_coordinates, self.y_coordinates, self.z_coordinates, self.cell_data, self.ave_mobility, self.ave_energy, self.gb_count], axis=1)
         return self.df
 
+    # TODO: Implement the adjacencyMatrix function from C# into Python
+
     # Saves the df into a pkl file
     def save(self, file_name=None, directory=None):
         if file_name == None:
