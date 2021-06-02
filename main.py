@@ -1,4 +1,4 @@
-from nhi_parser import Parser
+from parser import Parser
 
 print("This will take about 10 minutes to fully run. \
        I recommend you use the save and load functions \
