@@ -72,6 +72,19 @@ class Parser:
                 elif current_row == "GBcount":
                     self.gb_count.append(float(line.strip()))
 
+        # Since cell_data is filled with arbitrary numbers, we need to convert them into consecutive numbers
+        unique_values = []
+        for i in range(len(self.cell_data)):            
+            if(self.cell_data[i] not in unique_values):
+                unique_values.append(self.cell_data[i])
+
+        unique_values.sort()
+        
+        for i in range(len(self.cell_data)):            
+            for j in range(len(unique_values)):
+                if(self.cell_data[i] == unique_values[j]):
+                    self.cell_data[i] = j
+
         # Format the data into pd Series
         self.x_coordinates = pd.Series(self.x_coordinates, name="X_COORDINATES")
         self.y_coordinates = pd.Series(self.y_coordinates, name="Y_COORDINATES")

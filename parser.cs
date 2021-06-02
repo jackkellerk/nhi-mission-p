@@ -122,7 +122,7 @@ public class Parser
         for(int i = 0; i < cellData.Count; i++)
             for(int j = 0; j < uniqueValues.Count; j++)
                 if(cellData[i] == uniqueValues[j])
-                    cellData[i] = j;        
+                    cellData[i] = j;         
     }
 
     // Returns a three dimensional representation of the cellData field
