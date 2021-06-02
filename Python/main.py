@@ -1,4 +1,3 @@
-import os.path
 from nhi_parser import Parser
 
 # Create a parsing object
