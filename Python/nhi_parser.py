@@ -93,7 +93,10 @@ class Parser:
         if directory == None:
             directory = "./"
         
-        self.df.to_pickle(directory + file_name[0:len(file_name) - 4] + ".pkl")
+        if(".pkl" in file_name):
+            self.df.to_pickle(directory + file_name)
+        else:
+            self.df.to_pickle(directory + file_name + ".pkl")
 
     # Loads the df from a pkl file
     def load(self, file_name):        
