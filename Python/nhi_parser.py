@@ -77,27 +77,31 @@ class Parser:
         for i in range(len(self.cell_data)):
             self.cell_data[i] -= 1
 
-        # Format the data into pd Series
-        self.x_coordinates = pd.Series(self.x_coordinates, name="X_COORDINATES")
-        self.y_coordinates = pd.Series(self.y_coordinates, name="Y_COORDINATES")
-        self.z_coordinates = pd.Series(self.z_coordinates, name="Z_COORDINATES")
-        self.cell_data = pd.Series(self.cell_data, name="CELL_DATA")
-        self.ave_mobility = pd.Series(self.ave_mobility, name="AVE_MOBILITY")
-        self.ave_energy = pd.Series(self.ave_energy, name="AVE_ENERGY")
-        self.gb_count = pd.Series(self.gb_count, name="GB_COUNT")
-
         # Format the series into a df
-        self.df = pd.concat([self.x_coordinates, self.y_coordinates, self.z_coordinates, self.cell_data, self.ave_mobility, self.ave_energy, self.gb_count], axis=1)
+        self.df = pd.concat([pd.Series(self.x_coordinates, name="X_COORDINATES"), pd.Series(self.y_coordinates, name="Y_COORDINATES"), 
+                             pd.Series(self.z_coordinates, name="Z_COORDINATES"), pd.Series(self.cell_data, name="CELL_DATA"), 
+                             pd.Series(self.ave_mobility, name="AVE_MOBILITY"), pd.Series(self.ave_energy, name="AVE_ENERGY"), 
+                             pd.Series(self.gb_count, name="GB_COUNT")], axis=1)
+        
+        # Format the data into np arrays
+        self.x_coordinates = np.array(self.x_coordinates)
+        self.y_coordinates = np.array(self.y_coordinates)
+        self.z_coordinates = np.array(self.z_coordinates)
+        self.cell_data = np.array(self.cell_data)
+        self.ave_mobility = np.array(self.ave_mobility)
+        self.ave_energy = np.array(self.ave_energy)
+        self.gb_count = np.array(self.gb_count)
+
         return self.df
 
     # Returns the cell_data into a three dimensional array or a cube
     def cube(self):
-        cube = np.ndarray(shape=((self.x_coordinates).size - 1, (self.y_coordinates).size - 1, (self.z_coordinates).size - 1))        
+        cube = np.ndarray(shape=((self.x_coordinates).shape[0] - 1, (self.y_coordinates).shape[0] - 1, (self.z_coordinates).shape[0] - 1))
 
-        for i in range((self.x_coordinates).size - 1):
-            for j in range((self.y_coordinates).size - 1):
-                for k in range((self.z_coordinates).size - 1):
-                    cube[i, j, k] = self.cell_data[(i * ((self.x_coordinates).size - 2) * ((self.y_coordinates).size - 2)) + (j * ((self.z_coordinates).size - 2)) + k]
+        for i in range((self.x_coordinates).shape[0] - 1):
+            for j in range((self.y_coordinates).shape[0] - 1):
+                for k in range((self.z_coordinates).shape[0] - 1):
+                    cube[i, j, k] = self.cell_data[(i * ((self.x_coordinates).shape[0] - 2) * ((self.y_coordinates).shape[0] - 2)) + (j * ((self.z_coordinates).shape[0] - 2)) + k]
         
         return cube
     
@@ -157,16 +161,21 @@ class Parser:
         if(".pkl" in file_name):
             self.df.to_pickle(directory + file_name)
         else:
-            self.df.to_pickle(directory + file_name + ".pkl")
+            self.df.to_pickle(directory + file_name + ".pkl")        
 
     # Loads the df from a pkl file
-    def load(self, file_name):        
+    def load(self, file_name):
+        if(".pkl" not in file_name):
+            file_name = file_name + ".pkl"
+        
         self.file_name = file_name[0:len(file_name) - 4] + ".vtk"
         self.df = pd.read_pickle(file_name)
-        self.x_coordinates = self.df.T.iloc[0]
-        self.y_coordinates = self.df.T.iloc[1]
-        self.z_coordinates = self.df.T.iloc[2]
-        self.cell_data = self.df.T.iloc[3]
-        self.ave_mobility = self.df.T.iloc[4]
-        self.ave_energy = self.df.T.iloc[5]
-        self.gb_count = self.df.T.iloc[6]
+        self.x_coordinates = (self.df.T.iloc[0]).to_numpy()[:np.argwhere(np.isnan((self.df.T.iloc[0]).to_numpy()))[0][0]]
+        self.y_coordinates = (self.df.T.iloc[1]).to_numpy()[:np.argwhere(np.isnan((self.df.T.iloc[1]).to_numpy()))[0][0]]
+        self.z_coordinates = (self.df.T.iloc[2]).to_numpy()[:np.argwhere(np.isnan((self.df.T.iloc[2]).to_numpy()))[0][0]]
+        self.cell_data = (self.df.T.iloc[3]).to_numpy()
+        self.ave_mobility = (self.df.T.iloc[4]).to_numpy()
+        self.ave_energy = (self.df.T.iloc[5]).to_numpy()
+        self.gb_count = (self.df.T.iloc[6]).to_numpy()
+
+        return self
