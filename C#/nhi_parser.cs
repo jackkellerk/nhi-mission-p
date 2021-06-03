@@ -111,18 +111,9 @@ public class Parser
             }
         }
 
-        // Since cellData is filled with arbitrary numbers, we need to convert them into consecutive numbers
-        List<int> uniqueValues = new List<int>();
-        for(int i = 0; i < cellData.Count; i++)        
-            if(!uniqueValues.Contains(cellData[i]))
-                uniqueValues.Add(cellData[i]);
-
-        uniqueValues.Sort();
-        
+        // Index the grainbounds starting at zero
         for(int i = 0; i < cellData.Count; i++)
-            for(int j = 0; j < uniqueValues.Count; j++)
-                if(cellData[i] == uniqueValues[j])
-                    cellData[i] = j;         
+            cellData[i]--;
     }
 
     // Returns a three dimensional representation of the cellData field
@@ -138,12 +129,12 @@ public class Parser
         return cube;
     }
 
-    // Returns an adjacency matrix of all of the individual grainbounds
+    // Returns an adjacency matrix of all of the individual grainbounds    
     public int[,] adjacencyMatrix()
     {
-        int[,,] cube = this.cube();
-        int uniqueValues = cellData.Distinct().ToArray().Length;        
-        int[,] adjacencyMatrix = new int[uniqueValues, uniqueValues];
+        int[,,] cube = this.cube();        
+        int maxValue = cellData.Max() + 1;
+        int[,] adjacencyMatrix = new int[maxValue, maxValue];
         
         // Loop through each element in the cube
         for(int i = 0; i < cube.GetLength(0); i++)
@@ -151,9 +142,9 @@ public class Parser
             for(int j = 0; j < cube.GetLength(1); j++)
             {
                 for(int k = 0; k < cube.GetLength(2); k++)
-                {
+                {                    
                     // Check all six sides of the selected element, if there is 
-                    // an element from a different grainboundary, update the adjacency matrix
+                    // an element from a different grainboundary, update the adjacency matrix                    
 
                     // Check the element in front of the current element
                     if(i - 1 >= 0)
@@ -183,7 +174,7 @@ public class Parser
                     // Check the element on the bottom of the current element
                     if(k + 1 < cube.GetLength(2))
                         if(cube[i, j, k] != cube[i, j, k + 1])
-                            adjacencyMatrix[cube[i, j, k], cube[i, j, k + 1]] = 1;
+                            adjacencyMatrix[cube[i, j, k], cube[i, j, k + 1]] = 1;                    
                 }
             }
         }        
@@ -229,7 +220,7 @@ public class Parser
     public static void Main(string[] args)
     {
         // Create parser object
-        Parser parser = new Parser("data.vtk");      
+        Parser parser = new Parser("../Data/data.vtk");
         var coloredCube = parser.coloredCube();
     }
 }

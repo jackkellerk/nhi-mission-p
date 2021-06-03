@@ -1,3 +1,4 @@
+import numpy as np
 import pandas as pd
 
 # Object class parser
@@ -70,7 +71,11 @@ class Parser:
                 elif current_row == "AveEnergy":
                     self.ave_energy.append(float(line.strip()))
                 elif current_row == "GBcount":
-                    self.gb_count.append(float(line.strip()))        
+                    self.gb_count.append(float(line.strip()))
+        
+        # Index the grainbounds starting at zero
+        for i in range(len(self.cell_data)):
+            self.cell_data[i] -= 1
 
         # Format the data into pd Series
         self.x_coordinates = pd.Series(self.x_coordinates, name="X_COORDINATES")
@@ -85,7 +90,61 @@ class Parser:
         self.df = pd.concat([self.x_coordinates, self.y_coordinates, self.z_coordinates, self.cell_data, self.ave_mobility, self.ave_energy, self.gb_count], axis=1)
         return self.df
 
-    # TODO: Implement the adjacencyMatrix function from C# into Python
+    # Returns the cell_data into a three dimensional array or a cube
+    def cube(self):
+        cube = np.ndarray(shape=((self.x_coordinates).size - 1, (self.y_coordinates).size - 1, (self.z_coordinates).size - 1))        
+
+        for i in range((self.x_coordinates).size - 1):
+            for j in range((self.y_coordinates).size - 1):
+                for k in range((self.z_coordinates).size - 1):
+                    cube[i, j, k] = self.cell_data[(i * ((self.x_coordinates).size - 2) * ((self.y_coordinates).size - 2)) + (j * ((self.z_coordinates).size - 2)) + k]
+        
+        return cube
+    
+    # Returns the adjacency_matrix
+    def adjacency_matrix(self):
+        cube = self.cube()
+        max_value = int(max(self.cell_data) + 1)
+        adjacency_matrix = np.zeros(shape=(max_value, max_value))
+        
+        # Loop through each element in the cube
+        for i in range(cube.shape[0]):
+            for j in range(cube.shape[1]):
+                for k in range(cube.shape[2]):
+                    # Check all six sides of the selected element, if there is 
+                    # an element from a different grainboundary, update the adjacency matrix    
+ 
+                    # Check the element in front of the current element
+                    if(i - 1 >= 0):
+                        if(cube[i, j, k] != cube[i - 1, j, k]):
+                            adjacency_matrix[int(cube[i, j, k]), int(cube[i - 1, j, k])] = 1
+
+                    # Check the element behind the current element
+                    if(i + 1 < cube.shape[0]):
+                        if(cube[i, j, k] != cube[i + 1, j, k]):
+                            adjacency_matrix[int(cube[i, j, k]), int(cube[i + 1, j, k])] = 1
+
+                    # Check the element to the left of the current element
+                    if(j - 1 >= 0):
+                        if(cube[i, j, k] != cube[i, j - 1, k]):
+                            adjacency_matrix[int(cube[i, j, k]), int(cube[i, j - 1, k])] = 1
+
+                    # Check the element to the right of the current element
+                    if(j + 1 < cube.shape[1]):
+                        if(cube[i, j, k] != cube[i, j + 1, k]):
+                            adjacency_matrix[int(cube[i, j, k]), int(cube[i, j + 1, k])] = 1
+
+                    # Check the element on top of the current element
+                    if(k - 1 >= 0):
+                        if(cube[i, j, k] != cube[i, j, k - 1]):
+                            adjacency_matrix[int(cube[i, j, k]), int(cube[i, j, k - 1])] = 1
+
+                    # Check the element on the bottom of the current element
+                    if(k + 1 < cube.shape[2]):
+                        if(cube[i, j, k] != cube[i, j, k + 1]):
+                            adjacency_matrix[int(cube[i, j, k]), int(cube[i, j, k + 1])] = 1
+
+        return adjacency_matrix
 
     # Saves the df into a pkl file
     def save(self, file_name=None, directory=None):
