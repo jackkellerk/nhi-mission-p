@@ -8,4 +8,5 @@
 ## Contributors
 * Jack Kellerk
 * Houliang Zhou
+* Maximillian Machado
 * Add your name here
